@@ -2,9 +2,13 @@
  * Global Declarations
  */
 
+<<<<<<< Updated upstream
 /**
  * HTML Element Declarations
  * */
+=======
+
+>>>>>>> Stashed changes
 const timerHours = document.querySelector(".select--hours select");
 const timerMinutes = document.querySelector(".select--minutes select");
 const timerSeconds = document.querySelector(".select--seconds select");
