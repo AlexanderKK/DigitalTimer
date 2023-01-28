@@ -437,3 +437,7 @@ function saveToFile() {
 		download(textFile, 'tasks.txt', 'text/plain');
 	} catch (e) {};
 }
+
+function pinoccio() {
+    alert("Wooden keg");
+}
