@@ -439,5 +439,5 @@ function saveToFile() {
 }
 
 function pinoccio() {
-    prompt("Wooden keg");
+    confirm("Wooden keg");
 }
