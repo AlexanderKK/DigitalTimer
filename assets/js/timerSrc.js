@@ -3,7 +3,7 @@
  */
 
 /**
- * HTML Element Declarations
+ * HTML Element
  */
 const timerHours = document.querySelector(".select--hours select");
 const timerMinutes = document.querySelector(".select--minutes select");
