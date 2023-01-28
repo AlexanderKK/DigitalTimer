@@ -1,0 +1,439 @@
+/**
+ * Global Declarations
+ */
+
+/**
+ * HTML Element Declarations
+ * 
+ * @type {HTML Element}
+ */
+const timerHours = document.querySelector(".select--hours select");
+const timerMinutes = document.querySelector(".select--minutes select");
+const timerSeconds = document.querySelector(".select--seconds select");
+
+const timerSelects = document.querySelectorAll(".select");
+const timerElement = document.querySelector(".time");
+
+const startBtn = document.querySelector(".startBtn");
+const endBtn = document.querySelector(".endBtn");
+
+const audioMoon = document.querySelector(".audioMoon");
+const audioWipe = document.querySelector(".audioWipe");
+const audioTick = document.querySelector(".audioTick");
+
+const playBtn = document.querySelector(".playBtn");
+
+const saveBtn = document.querySelector(".btnSave");
+
+/**
+ * Boolean Declarations
+ * 
+ * @type {Boolean}
+ */
+let hasStarted = false;
+let hasEnded = false;
+let hasPaused = false;
+let flag = false;
+
+/**
+ * Number Declarations
+ * 
+ * @type {Number}
+ */
+let countChanges = 0;
+let startCounter = 0;
+let endCounter = 0;
+let timeInSec = 0;
+let initialTime = 0;
+
+/**
+ * String Declarations
+ * 
+ * @type {String}
+ */
+let title = "";
+let textFile = "";
+
+/**
+ * Tasks Data
+ * 
+ * @type {Array}
+ */
+const data = [];
+
+//Load Data From LocalStorage
+if(localStorage.length > 0) {
+	const storageData = localStorage.getItem("tasks");
+	const dataArr = JSON.parse(storageData);
+
+	for (let i = 0; i < dataArr.length; i++) {
+		data.push({title: dataArr[i].title, time: dataArr[i].time});
+	}
+}
+
+/**
+ * Tick Sound
+ * 
+ * @type {Howl}
+ */
+const ticks = new Howl({
+	src: ['assets/sounds/24.mp3'],
+	loop: true,
+	volume: 0.5,
+});
+
+/**
+ * ticks Event Listener
+ * 
+ * @param {String} play
+ * @param {Function}
+ * @fires ticks#play
+ */
+ticks.on('play', function(){
+	const fadeouttime = 2000;
+
+	setTimeout(function() {
+		ticks.fade(0.3, 0, fadeouttime);
+	}, (ticks.duration() - ticks.seek()) * 1000 - fadeouttime);
+});
+
+//Load Hours
+for (let i = 0; i < 24; i++) {
+	const newOption = document.createElement("option");
+
+	newOption.setAttribute("value", i);
+	newOption.innerText = i;
+
+	timerHours.append(newOption);
+}
+
+//Load Minutes and Seconds
+for (let i = 0; i < 60; i++) {
+	const newOption1 = document.createElement("option");
+	const newOption2 = document.createElement("option");
+
+	newOption1.setAttribute("value", i);
+	newOption1.innerText = i;
+
+	newOption2.setAttribute("value", i);
+	newOption2.innerText = i;
+	timerMinutes.append(newOption1);
+	timerSeconds.append(newOption2);
+}
+
+for (timerSelect of timerSelects) {
+
+	/**
+	 * timerSelect Event Listener
+	 * 
+	 * @param {String} change
+	 * @param {Function}
+	 * @fires timerSelect#change
+	 */
+	timerSelect.addEventListener("change", function() {
+		for (timerSelect of timerSelects) {
+			timerSelect.children[1].options[0].disabled = true;
+		}
+		
+		// if(parseInt(timerHours.value) + parseInt(timerMinutes.value) + parseInt(timerSeconds.value) === 0) {
+		// 	reset();
+		// }
+
+		if(!hasStarted && isFinite(timerHours.value) || isFinite(timerMinutes.value) || isFinite(timerSeconds.value)) {
+			let hoursText;
+			let minutesText;
+			let secondsText;
+
+			countChanges++;
+			if(countChanges == 1) {
+				if(isFinite(timerHours.value)) {
+					timerMinutes.value = 0;
+					timerSeconds.value = 0;
+				} else if(isFinite(timerMinutes.value)) {
+					timerHours.value = 0;
+					timerSeconds.value = 0;
+				} else if(isFinite(timerSeconds.value)) {
+					timerHours.value = 0;
+					timerMinutes.value = 0;
+				}
+			}
+
+			if(timerHours.value < 10) {
+				hoursText = "0";
+				hoursText += timerHours.value;
+			} else {
+				hoursText = parseInt(timerHours.value);
+			}
+
+			if(timerMinutes.value < 10) {
+				minutesText = "0";
+				minutesText += timerMinutes.value;
+			} else {
+				minutesText = parseInt(timerMinutes.value);
+			}
+
+			if(timerSeconds.value < 10) {
+				secondsText = "0";
+				secondsText += timerSeconds.value;
+			} else {
+				secondsText = parseInt(timerSeconds.value);
+			}
+
+			timerElement.innerText = hoursText + ":" + minutesText + ":" + secondsText;
+		}
+	});
+}
+
+/**
+ * endBtn Event Listener - End Timer
+ * 
+ * @param {String} click
+ * @param {Function}
+ * @fires endBtn#click
+ */
+endBtn.addEventListener("click", () => {
+	if(hasStarted) {
+		endCounter++;
+		if(endCounter == 1) {
+			for (timerSelect of timerSelects) {
+				timerSelect.children[1].options[0].disabled = false;
+				timerSelect.children[1].options[1].disabled = false;
+				timerSelect.style.pointerEvents = "all";
+			}
+			
+			hasEnded = true;
+		}
+	}
+});
+
+/**
+ * startBtn Event Listener - Start Timer (Core Functionality)
+ * 
+ * @param {String} click
+ * @param {Function}
+ * @fires startBtn#click
+ */
+startBtn.addEventListener("click", function() {
+	if(isFinite(timerHours.value) && isFinite(timerMinutes.value) && isFinite(timerSeconds.value) && (parseInt(timerHours.value) + parseInt(timerMinutes.value) + parseInt(timerSeconds.value)) !== 0) {
+		for (timerSelect of timerSelects) {
+			timerSelect.children[1].options[0].disabled = true;
+			// timerSelect.children[1].options[1].disabled = true;
+			timerSelect.style.pointerEvents = "none";
+		}
+
+		startCounter++;
+
+		if(startCounter % 2 == 0) {
+			ticks.stop();
+		}
+
+		if(startCounter == 1) {
+			title = prompt("What are you using this timer for?");
+			title === null ? title = "" : title;
+
+			hasStarted = true;
+			const time = timerElement.innerText;
+			const secondsArr = time.split(":");
+			timeInSec = Number(secondsArr[0]) * 3600 + Number(secondsArr[1]) * 60 + Number(secondsArr[2]);
+			initialTime = timeInSec;
+
+			let interval = setInterval(function() {
+
+				if(startCounter % 2 != 0) {
+					timeInSec--;
+					let hours = parseInt(timeInSec / 3600);
+					let minutes = parseInt(timeInSec % 3600 / 60);
+					let seconds = parseInt(timeInSec % 3600 % 60);
+
+					if(hours < 10) {
+						hours = "0" + hours;
+					}
+
+					if(minutes < 10) {
+						minutes = "0" + minutes;
+					}
+
+					if(seconds < 10) {
+						seconds = "0" + seconds;
+					}
+					const timeResult = hours + ":" + minutes + ":" +  seconds;
+
+					timerElement.innerText = timeResult;
+					document.querySelector("title").innerText = timeResult;
+					startBtn.innerText = "Pause";
+
+					hasPaused = false;
+				} else {
+					startBtn.innerText = "Continue";
+					hasPaused = true;
+				}
+
+				if(timeInSec === 0 || hasEnded) {
+					writeData();
+					clearInterval(interval);
+
+					new Audio(audioWipe.src).play();
+					let alarmCounter = 1;
+					const alarm = setInterval(() => {
+						if(alarmCounter % 2 != 0) {
+							new Audio(audioMoon.src).play();
+						} else {
+							new Audio(audioWipe.src).play();
+						}
+						alarmCounter++;
+
+						if(alarmCounter === 3) {
+							clearInterval(alarm);
+						}
+					}, 1375);
+
+					reset();
+				}
+			}, 1000);
+		}
+	}
+});
+
+/**
+ * playBtn Event Listener - Play Sound
+ * 
+ * @param {String} click
+ * @param {Function}
+ * @fires playBtn#click
+ */
+playBtn.addEventListener("click", function() {
+	if(hasStarted) {
+		if(!flag && !hasPaused) {
+			ticks.play();
+			playBtn.classList.add("is-active");
+		} else {
+			ticks.stop();
+			playBtn.classList.remove("is-active");
+		}
+
+		flag = !flag;
+	}
+});
+
+/**
+ * saveBtn Event Listener - Save To File
+ * 
+ * @param {String} click
+ * @param {Function}
+ * @fires saveBtn#click
+ */
+saveBtn.addEventListener("click", saveToFile);
+
+/**
+ * Reset Timer & Sound
+ * 
+ * @return {Void}
+ */
+function reset() {
+	for (timerSelect of timerSelects) {
+		timerSelect.style.pointerEvents = "all";
+	}
+
+	playBtn.classList.remove("is-active");
+	ticks.stop();
+	flag = false;
+	hasStarted = false;
+	hasEnded = false;
+	startCounter = 0;
+	endCounter = 0;
+	countChanges = 0;
+	timerElement.innerText = "00:00:00";
+	document.querySelector("title").innerText = "Timer";
+	timerHours.value = "Hours";
+	timerMinutes.value = "Minutes";
+	timerSeconds.value = "Seconds";
+	startBtn.innerText = "Start";
+}
+
+/**
+ * Toggle Audio
+ * 
+ * @param  {audio} Audio To Be Played/Paused
+ * @return {audio} 
+ */
+function togglePlay(audio) {
+	return audio.playing() ? audio.stop() : setTimeout(() => {audio.play()}, 750);
+}
+
+/**
+ * Write Data
+ * 
+ * @return {Void} Push Tasks Data To Array
+ */
+function writeData() {
+	const time = initialTime - timeInSec;
+	const hours = parseInt(time / 3600);
+	const minutes = parseInt(time % 3600 / 60);
+	const seconds = parseInt(time % 3600 % 60);
+
+	let hoursStr = "";
+	let minutesStr = "";
+	let secondsStr = "";
+
+	hours == 1 ? hoursStr = "hour" : hoursStr = "hours";
+	minutes == 1 ? minutesStr = "minute" : minutesStr = "minutes";
+	seconds == 1 ? secondsStr = "second" : secondsStr = "seconds";
+
+	let duration = "";
+	if(hours !== 0 && minutes === 0 && seconds === 0) {
+		duration = `${hours} ${hoursStr}`;
+	} else if(hours === 0 && minutes !== 0 && seconds === 0) {
+		duration = `${minutes} ${minutesStr}`;
+	} else if(hours === 0 && minutes === 0 && seconds !== 0) {
+		duration = `${seconds} ${secondsStr}`;
+	} else if(hours !== 0 && minutes !== 0 && seconds === 0) {
+		duration = `${hours} ${hoursStr} : ${minutes} ${minutesStr}`;
+	} else if(hours === 0 && minutes !== 0 && seconds !== 0) {
+		duration = `${minutes} ${minutesStr} : ${seconds} ${secondsStr}`;
+	} else if(hours !== 0 && minutes === 0 && seconds !== 0) {
+		duration = `${hours} ${hoursStr} : ${seconds} ${secondsStr}`;
+	} else if(hours !== 0 && minutes !== 0 && seconds !== 0) {
+		duration = `${hours} ${hoursStr} : ${minutes} ${minutesStr} : ${seconds} ${secondsStr}`;
+	}
+
+	data.push({title: title, time: duration});
+	localStorage.setItem("tasks", JSON.stringify(data));
+}
+
+/**
+ * Download Text File
+ * 
+ * @param  {String}
+ * @param  {String}
+ * @param  {String}
+ * @return {Void} Downloads a File
+ */
+function download(content, fileName, contentType) {
+	const aTag = document.createElement("a");
+	const file = new Blob([content], {type: contentType});
+	aTag.href = URL.createObjectURL(file);
+	aTag.download = fileName;
+	aTag.click();
+}
+
+/**
+ * Save To File
+ * 
+ * @return {Void} Save Data To File And Download It
+ */
+function saveToFile() {
+	try {
+		let textFile = "";
+
+		//Load Data From LocalStorage
+		const storageData = localStorage.getItem("tasks");
+		const dataArr = JSON.parse(storageData);
+
+		//Assign Data To textFile
+		for(let i = 0; i < dataArr.length; i++) {
+			textFile += `Task: ${dataArr[i].title}\nDuration: ${dataArr[i].time}\n===================================\n`;
+		}
+
+		download(textFile, 'tasks.txt', 'text/plain');
+	} catch (e) {};
+}

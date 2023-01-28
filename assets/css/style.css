@@ -1,0 +1,345 @@
+/* ------------------------------------------------------------ *\
+	Reset
+\* ------------------------------------------------------------ */
+
+* {
+	box-sizing: border-box;
+}
+
+html,
+body {
+	height: 100%;
+	overflow: hidden;
+}
+
+/* ------------------------------------------------------------ *\
+	Base
+\* ------------------------------------------------------------ */
+
+body {
+	background: #0f3854;
+	background: radial-gradient(ellipse at center,  #0a2e38  0%, #000000 70%);
+	background-size: 100%;
+	font-family: 'Share Tech Mono', monospace;
+}
+
+p {
+	margin: 0;
+	padding: 0;
+}
+
+/* ------------------------------------------------------------ *\
+	Clock
+\* ------------------------------------------------------------ */
+
+#clock {
+	color: #FFF;
+	margin-top: 40px;
+	text-align: center;
+	color: #DAF6FF;
+	text-shadow: 0 0 20px rgba(10, 175, 230, 1),  0 0 20px rgba(10, 175, 230, 0);
+}
+
+.time {
+	letter-spacing: 0.05em;
+	font-size: 80px;
+	padding: 5px 0;
+}
+
+.date {
+	letter-spacing: 0.1em;
+	font-size: 24px;
+}
+
+.text {
+	letter-spacing: 0.1em;
+	font-size: 12px;
+	padding: 20px 0 0;
+}
+
+.hidden {
+	display: none;
+}
+
+.timerOuter {
+	position: relative;
+	margin: 0 auto;
+	max-width: 645px;
+	top: 50%;
+	transform: translateY(-50%);
+}
+
+.timerInput {
+	display: flex;
+	justify-content: space-between;
+}
+
+.timerActions {
+	margin-top: 50px;
+	display: flex;
+	justify-content: center;
+}
+
+.timerActions button {
+	width: 200px;
+	height: 48px;
+	margin: 0 10px;
+	font-size: 18px;
+	color: #2c3e50;
+	background-color: #0a2e38;
+	border: 2px solid #2c3e50;
+	outline: 0;
+	border-radius: 5px;
+	transition: background-color .3s, color .3s;
+	color: #DAF6FF;
+	text-transform: uppercase;
+	font-family: inherit;
+}
+
+.timerActions button:hover {
+	background-color: transparent;
+	cursor: pointer;
+	color: #fff;
+}
+
+select {
+	appearance: none;
+	outline: 0;
+	border: 0;
+	box-shadow: none;
+	font-size: 20px;
+	flex: 1;
+	padding: 0 1em;
+	color: #DAF6FF;
+	background-color: #092831;
+	background-image: none;
+	cursor: pointer;
+	font-family: inherit;
+}
+
+/* Remove IE arrow */
+select::-ms-expand {
+	display: none;
+}
+
+.select {
+	position: relative;
+	display: flex;
+	width: 200px;
+	height: 50px;
+	border-radius: .25em;
+	overflow: hidden;
+}
+
+.select::after {
+	content: '\25BC';
+	position: absolute;
+	top: 0;
+	right: 0;
+	padding: 1em;
+	background-color: #061b22;
+	transition: .25s all ease;
+	pointer-events: none;
+}
+
+.select:hover::after {
+	color: #DAF6FF;
+}
+
+/* ------------------------------------------------------------ *\
+	Play Button
+\* ------------------------------------------------------------ */
+
+.circle {
+  stroke: transparent;
+  stroke-dasharray: 650;
+  stroke-dashoffset: 650;
+  -webkit-transition: all 0.5s ease-in-out;
+  opacity: 0.3;
+}
+
+.playBtn {
+	position: absolute;
+	bottom: 70px;
+	right: 70px;
+	width: 40px;
+	height: 40px;
+	-webkit-transition: all 0.5s ease;
+}
+
+.playBtn .triangle {
+	-webkit-transition: all 0.7s ease-in-out;
+	stroke-dasharray: 240;
+	stroke-dashoffset: 480;
+	stroke: #FFF;
+	transform: translateY(0);
+}
+
+.playBtn .circle {
+	stroke-dashoffset: 0;
+	opacity: 1;
+}
+
+.playBtn:hover .triangle,
+.playBtn.is-active .triangle {
+	stroke-dashoffset: 0;
+	opacity: 1;
+	stroke: #f8aa28;
+	animation: nudge 0.7s ease-in-out;
+}
+
+.playBtn:hover .circle,
+.playBtn.is-active .circle {
+	stroke-dashoffset: 0;
+	opacity: 1;
+	stroke: #f8aa28;
+}
+
+@keyframes nudge {
+	0% {
+		transform: translateX(0);
+	}
+	30% {
+		transform: translateX(-5px);
+	}
+	50% {
+		transform: translateX(5px);
+	}
+	70% {
+		transform: translateX(-2px);
+	}
+	100% {
+		transform: translateX(0);
+	}
+}
+
+/* ------------------------------------------------------------ *\
+	Save Button
+\* ------------------------------------------------------------ */
+
+.btnSave{
+  position: absolute;
+  bottom: 130px;
+  right: 40px;
+  font-size:1.5rem;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  border: 2px solid #FFF;
+  background-color: transparent; 
+  transition: .5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  cursor: pointer;
+}
+
+.icon{
+  background-color: transparent; 
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
+  text-align:center;
+}
+
+.icon i {
+	color: #FFF;
+	font-size: 28px;
+	transition: all .5s;
+}
+
+.btnSave:hover {
+  box-shadow: 0px 5px 5px rgba(0,0,0,0.2);
+  background-color: #fff; 
+  transition: all .5s;
+}
+
+.btnSave:hover .icon i {
+	color: #000;
+}
+
+.btnSave:active{
+  box-shadow: 0px 2px 5px rgba(0,0,0,0.2);
+  transition: .5s;
+}
+
+@media screen and (max-width: 768px) {
+	.timerInput {
+		flex-direction: column;
+		flex-wrap: wrap;
+		align-items: center;
+	}
+
+	.select {
+		width: 150px;
+		height: 45px;
+		margin-top: 20px;
+		font-size: 14px;
+	}
+
+	select {
+		font-size: 18px;
+	}
+
+	.select:after {
+		background-color: #344e57; 
+	}
+
+	.time {
+		font-size: 60px;
+	}
+
+	.timerActions {
+		flex-direction: column;
+		align-items: center;
+	}
+
+	.action__end {
+		margin-top: 20px;
+	}
+
+	.timerActions button {
+		width: 150px;
+		height: 45px;
+		font-size: 16px;
+	}
+}
+
+@media screen and (max-width: 400px) {
+	.select {
+		width: 140px;
+		height: 40px;
+		margin-top: 15px;
+		font-size: 14px;
+	}
+
+	select {
+		font-size: 16px;
+	}
+
+	.time {
+		font-size: 40px;
+	}
+
+	.action__end {
+		margin-top: 20px;
+	}
+
+	.timerActions button {
+		width: 140px;
+		height: 40px;
+		font-size: 14px;
+	}
+
+	.btnSave,
+	.playBtn svg {
+		width: 50px;
+		height: 50px;
+	}
+
+	.playBtn {
+		right: 50px;
+		bottom: 30px;
+	}
+
+	.btnSave {
+		bottom: 80px;
+	}
+}

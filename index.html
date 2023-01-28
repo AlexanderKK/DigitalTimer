@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+
+		<title>Timer</title>
+
+		<link href="assets/images/favicon.ico" rel="icon">
+
+		<link rel="stylesheet" href="assets/css/style.css" type="text/css" media="all">
+
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js" integrity="sha512-6+YN/9o9BWrk6wSfGxQGpt3EUK6XeHi6yeHV+TYD2GR0Sj/cggRpXr1BrAQf0as6XslxomMUxXp2vIl+fv0QRA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+		<script src="https://use.fontawesome.com/65be3e8765.js"></script>
+	</head>
+	
+	<body>
+		<div class="timerOuter">
+			<div class="timerInput">
+				<div class="select select--hours">
+					<label for="hours" hidden>Hours</label>
+
+					<select name="hours" id="hours">
+						<option value="Hours" selected>Hours</option>
+					</select>
+				</div>
+				<div class="select select--minutes">
+					<label for="minutes" hidden>Minutes</label>
+
+					<select name="minutes" id="minutes">
+						<option value="Minutes" selected>Minutes</option>
+					</select>
+				</div>
+				<div class="select select--seconds">
+					<label for="seconds" hidden>Seconds</label>
+
+					<select name="seconds" id="seconds">
+						<option value="Seconds" selected>Seconds</option>
+					</select>
+				</div>
+			</div>
+
+			<div id="clock">
+				<p class="date"></p>
+				<p class="time">00:00:00</p>
+				<p class="text">Made By <i>Alejandro</i></p>
+			</div>
+
+			<div class="timerActions">
+				<div class="action__start">
+					<button class="startBtn">Start</button>
+				</div>
+				<div class="action__end">
+					<button class="endBtn">End</button>
+				</div>
+			</div>
+		</div>
+
+		<div class="playBtn">
+			<a>
+				<svg version="1.1"
+					 x="0px" y="0px" width="70px" height="70px" viewBox="0 0 213.7 213.7" enable-background="new 0 0 213.7 213.7"
+					 xml:space="preserve">
+
+					<polygon class='triangle' id="XMLID_18_" fill="none" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="
+					73.5,62.5 148.5,105.8 73.5,149.1 "/>
+				
+					<circle class='circle' id="XMLID_17_" fill="none"  stroke-width="7" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="106.8" cy="106.8" r="103.3"/>
+				</svg>
+			</a>
+		</div>
+
+		<div class="btnSave">
+			<div class="icon">
+				<i class="fa fa-floppy-o"></i>
+			</div>
+		</div>
+
+		<audio class="audioMoon hidden" src="assets/sounds/moon.mp3"></audio>
+		<audio class="audioWipe hidden" src="assets/sounds/wipe.mp3"></audio>
+
+		<script src="assets/js/timerSrc.js"></script>
+	</body>
+</html>
