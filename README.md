@@ -9,4 +9,5 @@ Simple and custom made timer with basic functionalities:
   <li>Stop</li>
   <li>Background sound on demand</li>
   <li>Saving data about tasks and corresponding time duration</li>
+  <li>Working with localStorage</li>
 </ul>
