@@ -32,12 +32,22 @@ p {
 	Clock
 \* ------------------------------------------------------------ */
 
-#clock {
+.section {
 	color: #FFF;
 	margin-top: 40px;
 	text-align: center;
 	color: #DAF6FF;
 	text-shadow: 0 0 20px rgba(10, 175, 230, 1),  0 0 20px rgba(10, 175, 230, 0);
+}
+
+.section-task-title {
+	width: 100%;
+	margin-top: 0;
+	position: absolute;
+	top: -90px;
+	left: 50%;
+	transform: translateX(-50%);
+	margin: 0 auto;
 }
 
 .time {
@@ -147,79 +157,12 @@ select::-ms-expand {
 }
 
 /* ------------------------------------------------------------ *\
-	Play Button
-\* ------------------------------------------------------------ */
-
-.circle {
-  stroke: transparent;
-  stroke-dasharray: 650;
-  stroke-dashoffset: 650;
-  -webkit-transition: all 0.5s ease-in-out;
-  opacity: 0.3;
-}
-
-.playBtn {
-	position: absolute;
-	bottom: 70px;
-	right: 70px;
-	width: 40px;
-	height: 40px;
-	-webkit-transition: all 0.5s ease;
-}
-
-.playBtn .triangle {
-	-webkit-transition: all 0.7s ease-in-out;
-	stroke-dasharray: 240;
-	stroke-dashoffset: 480;
-	stroke: #FFF;
-	transform: translateY(0);
-}
-
-.playBtn .circle {
-	stroke-dashoffset: 0;
-	opacity: 1;
-}
-
-.playBtn:hover .triangle,
-.playBtn.is-active .triangle {
-	stroke-dashoffset: 0;
-	opacity: 1;
-	stroke: #f8aa28;
-	animation: nudge 0.7s ease-in-out;
-}
-
-.playBtn:hover .circle,
-.playBtn.is-active .circle {
-	stroke-dashoffset: 0;
-	opacity: 1;
-	stroke: #f8aa28;
-}
-
-@keyframes nudge {
-	0% {
-		transform: translateX(0);
-	}
-	30% {
-		transform: translateX(-5px);
-	}
-	50% {
-		transform: translateX(5px);
-	}
-	70% {
-		transform: translateX(-2px);
-	}
-	100% {
-		transform: translateX(0);
-	}
-}
-
-/* ------------------------------------------------------------ *\
 	Save Button
 \* ------------------------------------------------------------ */
 
 .btnSave{
   position: absolute;
-  bottom: 130px;
+  bottom: 40px;
   right: 40px;
   font-size:1.5rem;
   width: 70px;
@@ -328,15 +271,9 @@ select::-ms-expand {
 		font-size: 14px;
 	}
 
-	.btnSave,
-	.playBtn svg {
+	.btnSave {
 		width: 50px;
 		height: 50px;
-	}
-
-	.playBtn {
-		right: 50px;
-		bottom: 30px;
 	}
 
 	.btnSave {

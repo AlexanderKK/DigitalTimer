@@ -11,6 +11,7 @@ const timerSeconds = document.querySelector(".select--seconds select");
 
 const timerSelects = document.querySelectorAll(".select");
 const timerElement = document.querySelector(".time");
+const timerTaskTitle = document.querySelector("#task-title");
 
 const startBtn = document.querySelector(".startBtn");
 const endBtn = document.querySelector(".endBtn");
@@ -18,8 +19,6 @@ const endBtn = document.querySelector(".endBtn");
 const audioMoon = document.querySelector(".audioMoon");
 const audioWipe = document.querySelector(".audioWipe");
 const audioTick = document.querySelector(".audioTick");
-
-const playBtn = document.querySelector(".playBtn");
 
 const saveBtn = document.querySelector(".btnSave");
 
@@ -43,6 +42,7 @@ let startCounter = 0;
 let endCounter = 0;
 let timeInSec = 0;
 let initialTime = 0;
+const taskTitleMaxLength = 20;
 
 /**
  * String Declarations
@@ -200,6 +200,7 @@ endBtn.addEventListener("click", () => {
 			}
 			
 			hasEnded = true;
+			ticks.stop();
 		}
 	}
 });
@@ -226,14 +227,19 @@ startBtn.addEventListener("click", function() {
 		}
 
 		if(startCounter == 1) {
-			title = prompt("What are you using this timer for?");
-			title === null ? title = "" : title;
+			do {
+				title = prompt(`What are you using this timer for? [Max length: ${taskTitleMaxLength}]`);
+				title === null ? title = "" : title;
+			} 
+			while(title.length > taskTitleMaxLength);
 
 			hasStarted = true;
 			const time = timerElement.innerText;
 			const secondsArr = time.split(":");
 			timeInSec = Number(secondsArr[0]) * 3600 + Number(secondsArr[1]) * 60 + Number(secondsArr[2]);
 			initialTime = timeInSec;
+
+			timerTaskTitle.innerHTML= `<b>${title}</b>`;
 
 			let interval = setInterval(function() {
 
@@ -266,7 +272,27 @@ startBtn.addEventListener("click", function() {
 					hasPaused = true;
 				}
 
+				if(timerSeconds.value >= 4 && timerSeconds.value <= 15) {
+					const lastSeconds = Math.ceil(timerSeconds.value * 0.4);
+
+					if(lastSeconds === timeInSec) {
+						ticks.play();
+					}
+				}
+
+				if(timeInSec == 15) {
+					ticks.play();
+				}
+
 				if(timeInSec === 0 || hasEnded) {
+					setTimeout(() => {
+						ticks.stop();
+					}, 100);
+
+					timerTaskTitle.innerHTML = title == "" 
+					? `Timer has finished!`
+					: `Timer for <b>${title}</b> has finished!`;
+
 					writeData();
 					clearInterval(interval);
 
@@ -282,6 +308,7 @@ startBtn.addEventListener("click", function() {
 
 						if(alarmCounter === 3) {
 							clearInterval(alarm);
+							ticks.stop();
 						}
 					}, 1375);
 
@@ -289,27 +316,6 @@ startBtn.addEventListener("click", function() {
 				}
 			}, 1000);
 		}
-	}
-});
-
-/**
- * playBtn Event Listener - Play Sound
- * 
- * @param {String} click
- * @param {Function}
- * @fires playBtn#click
- */
-playBtn.addEventListener("click", function() {
-	if(hasStarted) {
-		if(!flag && !hasPaused) {
-			ticks.play();
-			playBtn.classList.add("is-active");
-		} else {
-			ticks.stop();
-			playBtn.classList.remove("is-active");
-		}
-
-		flag = !flag;
 	}
 });
 
@@ -332,7 +338,6 @@ function reset() {
 		timerSelect.style.pointerEvents = "all";
 	}
 
-	playBtn.classList.remove("is-active");
 	ticks.stop();
 	flag = false;
 	hasStarted = false;
