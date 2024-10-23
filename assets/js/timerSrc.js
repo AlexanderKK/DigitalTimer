@@ -421,7 +421,7 @@ function saveToFile() {
 			textFile += `Task №${i + 1}: ${dataArr[i].title}\nDuration: ${dataArr[i].time}\nExpected Time: ${dataArr[i].expectedTime}\nFinished At: ${currentTime}\n===================================\n`;
 		}
 
-		download(textFile, 'tasks.txt', 'text/plain');
+		download(textFile, 'DigitalTimer.txt', 'text/plain');
 	} catch (e) {};
 }
 
