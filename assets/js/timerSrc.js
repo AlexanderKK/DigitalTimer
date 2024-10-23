@@ -224,10 +224,7 @@ startBtn.addEventListener("click", function() {
 		if(startCounter == 1) {
 			do {
 				title = prompt(`What are you using this timer for? [Max length: ${taskTitleMaxLength}]`);
-				if(title === null) {
-					reset();
-					return;
-				}
+				title === null ? title = "" : title;
 			} 
 			while(title.length > taskTitleMaxLength);
 
@@ -421,7 +418,7 @@ function saveToFile() {
 			textFile += `Task №${i + 1}: ${dataArr[i].title}\nDuration: ${dataArr[i].time}\nExpected Time: ${dataArr[i].expectedTime}\nFinished At: ${currentTime}\n===================================\n`;
 		}
 
-		download(textFile, 'tasks.txt', 'text/plain');
+		download(textFile, 'DigitalTimer.txt', 'text/plain');
 	} catch (e) {};
 }
 
