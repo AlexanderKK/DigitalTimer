@@ -30,7 +30,6 @@ const saveBtn = document.querySelector(".btnSave");
 let hasStarted = false;
 let hasEnded = false;
 let hasPaused = false;
-let flag = false;
 
 /**
  * Number Declarations
@@ -41,7 +40,8 @@ let countChanges = 0;
 let startCounter = 0;
 let endCounter = 0;
 let timeInSec = 0;
-let initialTime = 0;
+let initialTimeInSec = 0;
+
 const taskTitleMaxLength = 20;
 
 /**
@@ -132,10 +132,6 @@ for (timerSelect of timerSelects) {
 		for (timerSelect of timerSelects) {
 			timerSelect.children[1].options[0].disabled = true;
 		}
-		
-		// if(parseInt(timerHours.value) + parseInt(timerMinutes.value) + parseInt(timerSeconds.value) === 0) {
-		// 	reset();
-		// }
 
 		if(!hasStarted && isFinite(timerHours.value) || isFinite(timerMinutes.value) || isFinite(timerSeconds.value)) {
 			let hoursText;
@@ -221,7 +217,6 @@ startBtn.addEventListener("click", function() {
 		}
 
 		startCounter++;
-
 		if(startCounter % 2 == 0) {
 			ticks.stop();
 		}
@@ -229,7 +224,10 @@ startBtn.addEventListener("click", function() {
 		if(startCounter == 1) {
 			do {
 				title = prompt(`What are you using this timer for? [Max length: ${taskTitleMaxLength}]`);
-				title === null ? title = "" : title;
+				if(title === null) {
+					reset();
+					return;
+				}
 			} 
 			while(title.length > taskTitleMaxLength);
 
@@ -237,12 +235,12 @@ startBtn.addEventListener("click", function() {
 			const time = timerElement.innerText;
 			const secondsArr = time.split(":");
 			timeInSec = Number(secondsArr[0]) * 3600 + Number(secondsArr[1]) * 60 + Number(secondsArr[2]);
-			initialTime = timeInSec;
+			initialTimeInSec = timeInSec;
 
 			timerTaskTitle.innerHTML= `<b>${title}</b>`;
+			const lastSeconds = Math.ceil(initialTimeInSec * 0.4);
 
 			let interval = setInterval(function() {
-
 				if(startCounter % 2 != 0) {
 					timeInSec--;
 					let hours = parseInt(timeInSec / 3600);
@@ -272,16 +270,24 @@ startBtn.addEventListener("click", function() {
 					hasPaused = true;
 				}
 
-				if(timerSeconds.value >= 4 && timerSeconds.value <= 15) {
-					const lastSeconds = Math.ceil(timerSeconds.value * 0.4);
-
-					if(lastSeconds === timeInSec) {
-						ticks.play();
-					}
-				}
-
 				if(timeInSec == 15) {
 					ticks.play();
+				}
+
+				if(initialTimeInSec >= 5 && initialTimeInSec <= 15 && lastSeconds === timeInSec) {
+					ticks.play();
+				}
+
+				if(!hasPaused) {
+					if(initialTimeInSec >= 5 && initialTimeInSec <= 15 && lastSeconds >= timeInSec && !ticks.playing()) {
+						ticks.play();
+					}
+	
+					if(initialTimeInSec >= 15 && timeInSec <= 15 && !ticks.playing()) {
+						ticks.play();
+					}
+				} else {
+					ticks.stop();
 				}
 
 				if(timeInSec === 0 || hasEnded) {
@@ -339,7 +345,6 @@ function reset() {
 	}
 
 	ticks.stop();
-	flag = false;
 	hasStarted = false;
 	hasEnded = false;
 	startCounter = 0;
@@ -369,37 +374,11 @@ function togglePlay(audio) {
  * @return {Void} Push Tasks Data To Array
  */
 function writeData() {
-	const time = initialTime - timeInSec;
-	const hours = parseInt(time / 3600);
-	const minutes = parseInt(time % 3600 / 60);
-	const seconds = parseInt(time % 3600 % 60);
+	const time = initialTimeInSec - timeInSec;
+	const duration = calculateDuration(time);
+	const expectedDuration = calculateDuration(initialTimeInSec);
 
-	let hoursStr = "";
-	let minutesStr = "";
-	let secondsStr = "";
-
-	hours == 1 ? hoursStr = "hour" : hoursStr = "hours";
-	minutes == 1 ? minutesStr = "minute" : minutesStr = "minutes";
-	seconds == 1 ? secondsStr = "second" : secondsStr = "seconds";
-
-	let duration = "";
-	if(hours !== 0 && minutes === 0 && seconds === 0) {
-		duration = `${hours} ${hoursStr}`;
-	} else if(hours === 0 && minutes !== 0 && seconds === 0) {
-		duration = `${minutes} ${minutesStr}`;
-	} else if(hours === 0 && minutes === 0 && seconds !== 0) {
-		duration = `${seconds} ${secondsStr}`;
-	} else if(hours !== 0 && minutes !== 0 && seconds === 0) {
-		duration = `${hours} ${hoursStr} : ${minutes} ${minutesStr}`;
-	} else if(hours === 0 && minutes !== 0 && seconds !== 0) {
-		duration = `${minutes} ${minutesStr} : ${seconds} ${secondsStr}`;
-	} else if(hours !== 0 && minutes === 0 && seconds !== 0) {
-		duration = `${hours} ${hoursStr} : ${seconds} ${secondsStr}`;
-	} else if(hours !== 0 && minutes !== 0 && seconds !== 0) {
-		duration = `${hours} ${hoursStr} : ${minutes} ${minutesStr} : ${seconds} ${secondsStr}`;
-	}
-
-	data.push({title: title, time: duration});
+	data.push({title: title, time: duration, expectedTime: expectedDuration, finishedAt: getCurrentDateTimeFormatted()});
 	localStorage.setItem("tasks", JSON.stringify(data));
 }
 
@@ -426,7 +405,10 @@ function download(content, fileName, contentType) {
  */
 function saveToFile() {
 	try {
-		let textFile = "";
+		let textFile = "[Tasks]";
+
+		const currentDate = getCurrentDateTimeFormatted().split(" ")[0];
+		textFile += `\n\n# ${currentDate} #\n===================================\n`;
 
 		//Load Data From LocalStorage
 		const storageData = localStorage.getItem("tasks");
@@ -434,9 +416,70 @@ function saveToFile() {
 
 		//Assign Data To textFile
 		for(let i = 0; i < dataArr.length; i++) {
-			textFile += `Task: ${dataArr[i].title}\nDuration: ${dataArr[i].time}\n===================================\n`;
+			const currentTime = dataArr[i].finishedAt.split(" ")[1];
+
+			textFile += `Task №${i + 1}: ${dataArr[i].title}\nDuration: ${dataArr[i].time}\nExpected Time: ${dataArr[i].expectedTime}\nFinished At: ${currentTime}\n===================================\n`;
 		}
 
-		download(textFile, 'tasks.txt', 'text/plain');
+		download(textFile, 'DigitalTimer', 'text/plain');
 	} catch (e) {};
+}
+
+/**
+ * Generate and return formatted current datetime
+ * 
+ * @returns {String} Current datetime formatted (DD.MM.YYYY HH:MM:SS)
+ */
+function getCurrentDateTimeFormatted() {
+	const currentDate = new Date();
+
+	const day = String(currentDate.getDate()).padStart(2, '0');
+	const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+	const year = currentDate.getFullYear();
+
+	const hours = String(currentDate.getHours()).padStart(2, '0');
+    const minutes = String(currentDate.getMinutes()).padStart(2, '0');
+    const seconds = String(currentDate.getSeconds()).padStart(2, '0');
+
+    return `${day}.${month}.${year} ${hours}:${minutes}:${seconds}`;
+}
+
+/**
+ * Calculate duration in a human readable format (hours/minutes/seconds)
+ * 
+ * @param {Number} timeInSec Time in seconds
+ * @returns The resulted duration
+ */
+function calculateDuration(timeInSec) {
+	const hours = parseInt(timeInSec / 3600);
+	const minutes = parseInt(timeInSec % 3600 / 60);
+	const seconds = parseInt(timeInSec % 3600 % 60);
+
+	let hoursStr = "";
+	let minutesStr = "";
+	let secondsStr = "";
+
+	hours == 1 ? hoursStr = "hour" : hoursStr = "hours";
+	minutes == 1 ? minutesStr = "minute" : minutesStr = "minutes";
+	seconds == 1 ? secondsStr = "second" : secondsStr = "seconds";
+
+	let duration = "";
+
+	if(hours !== 0 && minutes === 0 && seconds === 0) {
+		duration = `${hours} ${hoursStr}`;
+	} else if(hours === 0 && minutes !== 0 && seconds === 0) {
+		duration = `${minutes} ${minutesStr}`;
+	} else if(hours === 0 && minutes === 0 && seconds !== 0) {
+		duration = `${seconds} ${secondsStr}`;
+	} else if(hours !== 0 && minutes !== 0 && seconds === 0) {
+		duration = `${hours} ${hoursStr} : ${minutes} ${minutesStr}`;
+	} else if(hours === 0 && minutes !== 0 && seconds !== 0) {
+		duration = `${minutes} ${minutesStr} : ${seconds} ${secondsStr}`;
+	} else if(hours !== 0 && minutes === 0 && seconds !== 0) {
+		duration = `${hours} ${hoursStr} : ${seconds} ${secondsStr}`;
+	} else if(hours !== 0 && minutes !== 0 && seconds !== 0) {
+		duration = `${hours} ${hoursStr} : ${minutes} ${minutesStr} : ${seconds} ${secondsStr}`;
+	}
+
+	return duration;
 }
