@@ -415,7 +415,7 @@ function saveToFile() {
 		for(let i = 0; i < dataArr.length; i++) {
 			const currentTime = dataArr[i].finishedAt.split(" ")[1];
 
-			textFile += `Task №${i + 1}: ${dataArr[i].title}\nDuration: ${dataArr[i].time}\nExpected Time: ${dataArr[i].expectedTime}\nFinished At: ${currentTime}\n===================================\n`;
+			textFile += `Task ${i + 1}: ${dataArr[i].title}\nDuration: ${dataArr[i].time}\nExpected Time: ${dataArr[i].expectedTime}\nFinished At: ${currentTime}\n===================================\n`;
 		}
 
 		download(textFile, 'DigitalTimer.txt', 'text/plain');
