@@ -216,6 +216,8 @@ startBtn.addEventListener("click", function() {
 			timerSelect.style.pointerEvents = "none";
 		}
 
+		document.querySelector(".timerAdditions").style.display = "flex"
+
 		startCounter++;
 		if(startCounter % 2 == 0) {
 			ticks.stop();
@@ -316,6 +318,7 @@ startBtn.addEventListener("click", function() {
 					}, 1375);
 
 					reset();
+
 				}
 			}, 1000);
 		}
@@ -353,6 +356,35 @@ function reset() {
 	timerMinutes.value = "Minutes";
 	timerSeconds.value = "Seconds";
 	startBtn.innerText = "Start";
+	document.querySelector(".timerAdditions").style.display = "none"
+
+	const confettiEnd = Date.now() + 1000;
+
+					// Confetti Effect:
+
+					const colors = ["#ffffff", "#00ecff"];
+
+					(function frame() {
+					confetti({
+						particleCount: 2,
+						angle: 30,
+						spread: 90,
+						origin: { x: 0 },
+						colors: colors,
+					});
+
+					confetti({
+						particleCount: 2,
+						angle: 150,
+						spread: 90,
+						origin: { x: 1 },
+						colors: colors,
+					});
+
+					if (Date.now() < confettiEnd) {
+						requestAnimationFrame(frame);
+					}
+					})();
 }
 
 /**
