@@ -57,16 +57,12 @@ let textFile = "";
  * 
  * @type {Array}
  */
-const data = [];
+let data = [];
 
 //Load Data From LocalStorage
 if(localStorage.length > 0) {
 	const storageData = localStorage.getItem("tasks");
-	const dataArr = JSON.parse(storageData);
-
-	for (let i = 0; i < dataArr.length; i++) {
-		data.push({title: dataArr[i].title, time: dataArr[i].time});
-	}
+	data = JSON.parse(storageData);
 }
 
 /**
