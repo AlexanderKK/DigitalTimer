@@ -236,7 +236,6 @@ startBtn.addEventListener("click", function() {
 			initialTimeInSec = timeInSec;
 
 			timerTaskTitle.innerHTML= `<b>${title}</b>`;
-			const lastSeconds = Math.ceil(initialTimeInSec * 0.4);
 
 			let interval = setInterval(function() {
 				if(startCounter % 2 != 0) {
@@ -249,26 +248,6 @@ startBtn.addEventListener("click", function() {
 				} else {
 					startBtn.innerText = "Continue";
 					hasPaused = true;
-				}
-
-				if(timeInSec == 15) {
-					ticks.play();
-				}
-
-				if(initialTimeInSec >= 5 && initialTimeInSec <= 15 && lastSeconds === timeInSec) {
-					ticks.play();
-				}
-
-				if(!hasPaused) {
-					if(initialTimeInSec >= 5 && initialTimeInSec <= 15 && lastSeconds >= timeInSec && !ticks.playing()) {
-						ticks.play();
-					}
-	
-					if(initialTimeInSec >= 15 && timeInSec <= 15 && !ticks.playing()) {
-						ticks.play();
-					}
-				} else {
-					ticks.stop();
 				}
 
 				if(timeInSec === 0 || hasEnded) {
@@ -336,6 +315,11 @@ for(const addSecondsBtn of addSecondsBtns) {
 	addSecondsBtn.addEventListener("click", addSeconds);
 }
 
+/**
+ * Add minutes and modify timer
+ * 
+ * @return {Void}
+ */
 function addMinutes() {
 	const minutesAdded = Number(addMinutesBtn.innerText.split(" ")[1]);
 	const secondsAdded = minutesAdded * 60;
@@ -346,6 +330,11 @@ function addMinutes() {
 	modifyTimer();
 }
 
+/**
+ * Add seconds and modify timer
+ * 
+ * @return {Void}
+ */
 function addSeconds() {
 	const secondsAdded = Number(this.innerText.split(" ")[1]);
 	
@@ -554,6 +543,33 @@ function getTimeDividedFromSeconds(timeInSec) {
  */
 function modifyTimer() {
 	const timeParts = getTimeDividedFromSeconds(timeInSec);
+
+	// Toggle audio
+	const lastSeconds = Math.ceil(initialTimeInSec * 0.4);
+
+	if(timeInSec > 15) {
+		ticks.stop();
+	}
+
+	if(timeInSec == 15 && !ticks.playing()) {
+		ticks.play();
+	}
+
+	if(initialTimeInSec >= 5 && initialTimeInSec <= 15 && lastSeconds === timeInSec && !ticks.playing()) {
+		ticks.play();
+	}
+
+	if(!hasPaused) {
+		if(initialTimeInSec >= 5 && initialTimeInSec <= 15 && lastSeconds >= timeInSec && !ticks.playing()) {
+			ticks.play();
+		}
+
+		if(initialTimeInSec >= 15 && timeInSec <= 15 && !ticks.playing()) {
+			ticks.play();
+		}
+	} else {
+		ticks.stop();
+	}
 	
 	let hours = timeParts[0];
 	let minutes = timeParts[1];
