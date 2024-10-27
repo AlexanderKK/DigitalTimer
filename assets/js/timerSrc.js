@@ -10,7 +10,7 @@ const timerMinutes = document.querySelector(".select--minutes select");
 const timerSeconds = document.querySelector(".select--seconds select");
 
 const timerSelects = document.querySelectorAll(".select");
-const timerElement = document.querySelector(".time");
+const timerDisplay = document.querySelector(".time");
 const timerTaskTitle = document.querySelector("#task-title");
 
 const startBtn = document.querySelector(".startBtn");
@@ -21,6 +21,9 @@ const audioWipe = document.querySelector(".audioWipe");
 const audioTick = document.querySelector(".audioTick");
 
 const saveBtn = document.querySelector(".btnSave");
+
+const addMinutesBtn = document.querySelector(".action__addMinutes .addMinutes");
+const addSecondsBtns = document.querySelectorAll(".action__addSeconds button");
 
 /**
  * Boolean Declarations
@@ -169,7 +172,7 @@ for (timerSelect of timerSelects) {
 				secondsText = parseInt(timerSeconds.value);
 			}
 
-			timerElement.innerText = hoursText + ":" + minutesText + ":" + secondsText;
+			timerDisplay.innerText = hoursText + ":" + minutesText + ":" + secondsText;
 		}
 	});
 }
@@ -227,7 +230,7 @@ startBtn.addEventListener("click", function() {
 			while(title.length > taskTitleMaxLength);
 
 			hasStarted = true;
-			const time = timerElement.innerText;
+			const time = timerDisplay.innerText;
 			const secondsArr = time.split(":");
 			timeInSec = Number(secondsArr[0]) * 3600 + Number(secondsArr[1]) * 60 + Number(secondsArr[2]);
 			initialTimeInSec = timeInSec;
@@ -238,27 +241,10 @@ startBtn.addEventListener("click", function() {
 			let interval = setInterval(function() {
 				if(startCounter % 2 != 0) {
 					timeInSec--;
-					let hours = parseInt(timeInSec / 3600);
-					let minutes = parseInt(timeInSec % 3600 / 60);
-					let seconds = parseInt(timeInSec % 3600 % 60);
+					
+					modifyTimer();
 
-					if(hours < 10) {
-						hours = "0" + hours;
-					}
-
-					if(minutes < 10) {
-						minutes = "0" + minutes;
-					}
-
-					if(seconds < 10) {
-						seconds = "0" + seconds;
-					}
-					const timeResult = hours + ":" + minutes + ":" +  seconds;
-
-					timerElement.innerText = timeResult;
-					document.querySelector("title").innerText = timeResult;
 					startBtn.innerText = "Pause";
-
 					hasPaused = false;
 				} else {
 					startBtn.innerText = "Continue";
@@ -331,6 +317,45 @@ startBtn.addEventListener("click", function() {
 saveBtn.addEventListener("click", saveToFile);
 
 /**
+ * addMinutesBtn Event Listener - Add minutes
+ * 
+ * @param {String} click
+ * @param {Function}
+ * @fires addMinutesBtn#click
+ */
+addMinutesBtn.addEventListener("click", addMinutes);
+
+/**
+ * addSecondsBtn Event Listener - Add seconds
+ * 
+ * @param {String} click
+ * @param {Function}
+ * @fires addSecondsBtn#click
+ */
+for(const addSecondsBtn of addSecondsBtns) {
+	addSecondsBtn.addEventListener("click", addSeconds);
+}
+
+function addMinutes() {
+	const minutesAdded = Number(addMinutesBtn.innerText.split(" ")[1]);
+	const secondsAdded = minutesAdded * 60;
+
+	timeInSec += secondsAdded;
+	initialTimeInSec += secondsAdded;
+
+	modifyTimer();
+}
+
+function addSeconds() {
+	const secondsAdded = Number(this.innerText.split(" ")[1]);
+	
+	timeInSec += secondsAdded;
+	initialTimeInSec += secondsAdded;
+
+	modifyTimer();
+}
+
+/**
  * Reset Timer & Sound
  * 
  * @return {Void}
@@ -346,7 +371,7 @@ function reset() {
 	startCounter = 0;
 	endCounter = 0;
 	countChanges = 0;
-	timerElement.innerText = "00:00:00";
+	timerDisplay.innerText = "00:00:00";
 	document.querySelector("title").innerText = "Timer";
 	timerHours.value = "Hours";
 	timerMinutes.value = "Minutes";
@@ -356,31 +381,30 @@ function reset() {
 
 	const confettiEnd = Date.now() + 1000;
 
-					// Confetti Effect:
+	// Confetti Effect:
+	const colors = ["#ffffff", "#00ecff"];
 
-					const colors = ["#ffffff", "#00ecff"];
+	(function frame() {
+		confetti({
+			particleCount: 2,
+			angle: 30,
+			spread: 90,
+			origin: { x: 0 },
+			colors: colors,
+		});
 
-					(function frame() {
-					confetti({
-						particleCount: 2,
-						angle: 30,
-						spread: 90,
-						origin: { x: 0 },
-						colors: colors,
-					});
+		confetti({
+			particleCount: 2,
+			angle: 150,
+			spread: 90,
+			origin: { x: 1 },
+			colors: colors,
+		});
 
-					confetti({
-						particleCount: 2,
-						angle: 150,
-						spread: 90,
-						origin: { x: 1 },
-						colors: colors,
-					});
-
-					if (Date.now() < confettiEnd) {
-						requestAnimationFrame(frame);
-					}
-					})();
+		if (Date.now() < confettiEnd) {
+			requestAnimationFrame(frame);
+		}
+	}) ();
 }
 
 /**
@@ -472,13 +496,14 @@ function getCurrentDateTimeFormatted() {
 /**
  * Calculate duration in a human readable format (hours/minutes/seconds)
  * 
- * @param {Number} timeInSec Time in seconds
  * @returns The resulted duration
  */
 function calculateDuration(timeInSec) {
-	const hours = parseInt(timeInSec / 3600);
-	const minutes = parseInt(timeInSec % 3600 / 60);
-	const seconds = parseInt(timeInSec % 3600 % 60);
+	const timeParts = getTimeDividedFromSeconds(timeInSec);
+
+	const hours = timeParts[0];
+	const minutes = timeParts[1];
+	const seconds = timeParts[2];
 
 	let hoursStr = "";
 	let minutesStr = "";
@@ -507,4 +532,46 @@ function calculateDuration(timeInSec) {
 	}
 
 	return duration;
+}
+
+/**
+ * Get hours, minutes, seconds
+ * 
+ * @returns The resulted array parts from the division of seconds
+ */
+function getTimeDividedFromSeconds(timeInSec) {
+	const hours = parseInt(timeInSec / 3600);
+	const minutes = parseInt(timeInSec % 3600 / 60);
+	const seconds = parseInt(timeInSec % 3600 % 60);
+
+	return [hours, minutes, seconds];
+}
+
+/**
+ * Modify timer by getting time parts and updating the timer display paragraph
+ * 
+ * @returns {Void}
+ */
+function modifyTimer() {
+	const timeParts = getTimeDividedFromSeconds(timeInSec);
+	
+	let hours = timeParts[0];
+	let minutes = timeParts[1];
+	let seconds = timeParts[2];
+
+	if(hours < 10) {
+		hours = "0" + hours;
+	}
+
+	if(minutes < 10) {
+		minutes = "0" + minutes;
+	}
+
+	if(seconds < 10) {
+		seconds = "0" + seconds;
+	}
+	const timeResult = hours + ":" + minutes + ":" +  seconds;
+
+	timerDisplay.innerText = timeResult;
+	document.querySelector("title").innerText = timeResult;
 }
