@@ -45,7 +45,7 @@ let endCounter = 0;
 let timeInSec = 0;
 let initialTimeInSec = 0;
 
-const taskTitleMaxLength = 20;
+const taskTitleMaxLength = 30;
 
 /**
  * String Declarations
