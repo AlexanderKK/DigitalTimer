@@ -575,6 +575,10 @@ function modifyTimer() {
 	let minutes = timeParts[1];
 	let seconds = timeParts[2];
 
+	timerHours.value = hours;
+	timerMinutes.value = minutes;
+	timerSeconds.value = seconds;
+
 	if(hours < 10) {
 		hours = "0" + hours;
 	}
